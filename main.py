@@ -46,7 +46,7 @@ class UI(QMainWindow):
 
 
     def fetch_temp(self):
-        """Fetches the wanted values from the openweather API""""
+        """Fetches the wanted values from the openweather API"""
         try:
             location = self.wea_qloc.text()
             if location != "":
