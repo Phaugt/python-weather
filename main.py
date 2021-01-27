@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import (QPlainTextEdit, QMainWindow, QApplication, QPushButton, QLineEdit, qApp)
 from PyQt5 import (uic, QtCore, QtGui)
 from PyQt5.QtGui import (QIcon, QImage, QPixmap, QIcon)
-from PyQt5.QtCore import (Qt, QFile)
-import sys, os, requests, json
+from PyQt5.QtCore import (QThread, Qt, QFile)
+import sys, os, requests, json, threading
 from datetime import datetime
 from os.path import expanduser
 from easysettings import EasySettings
@@ -41,8 +41,16 @@ class UI(QMainWindow):
         wea_bg = QPixmap(wea_app)
         self.appbg.setPixmap(wea_bg)
 
-        self.wea_get.clicked.connect(self.fetch_temp)
-
+        self.wea_get.clicked.connect(self.worker)
+        self.wea_qloc.returnPressed.connect(self.worker)
+        
+    def worker(self):
+        """start a thread"""
+        t = threading.Thread(target=self.fetch_temp)
+        t.start()
+        self.wea_loc.setText("Fetching weatherdata...")
+        self.wea_temp.clear()
+        self.wea_icon.clear()
 
 
     def fetch_temp(self):
@@ -53,7 +61,6 @@ class UI(QMainWindow):
                 complete_url = wea_url + "&q=" + location
 
                 response = requests.get(complete_url)
-                print(complete_url)
 
                 x = response.json() 
                 if x["cod"] != "404":
